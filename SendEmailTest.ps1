@@ -1,16 +1,20 @@
 # Define the SMTP server and sender email
-$smtpServer = "smtp.example.com"  # Replace with your SMTP server
-$senderEmail = "your-email@example.com"  # Replace with your email address
+$smtpServer = "smtp.gmail.com"  # Gmail's SMTP server
+$senderEmail = "deandregraciano1995@gmail.com"  # Replace with your Gmail address
+$port = 587  # Port for TLS encryption
+
+# Prompt for Gmail credentials (use your email and App Password if 2FA is enabled)
+$credential = Get-Credential  # This will prompt you for your Gmail email and password (or App Password)
 
 # Define the list of incidents with details and personalized email bodies
 $incidents = @(
     @{
         Incident = "123456"
-        Name = "John"
+        Name = "Dhayana"
         Reason = "The document was voided due to missing or incomplete information."
-        Email = "john.doe@example.com"
+        Email = "dhayana.reinoso@gmail.com"
         Body = @"
-Hi John,
+Hi Dhayana,
 
 I hope this message finds you well. I just wanted to let you know that the document associated with Incident #123456 has been voided.
 
@@ -22,16 +26,16 @@ If you have any questions or need help sorting this out, feel free to reach out.
 Have a great day!  
 
 Best regards,  
-Your Name
+DeAndre
 "@
     },
     @{
         Incident = "654321"
-        Name = "Jane"
+        Name = "DeAndre"
         Reason = "The document was voided due to missing signatures."
-        Email = "jane.doe@example.com"
+        Email = "deandre.graciano1995@gmail.com"
         Body = @"
-Hi Jane,
+Hi DeAndre,
 
 I hope this message finds you well. I just wanted to let you know that the document associated with Incident #654321 has been voided.
 
@@ -54,7 +58,20 @@ foreach ($incident in $incidents) {
     $subject = "Follow-Up: Document Incident #$($incident.Incident) Voided"
     $body = $incident.Body
 
-    # Send the email
-    Send-MailMessage -From $senderEmail -To $to -Subject $subject -Body $body -SmtpServer $smtpServer -BodyAsHtml
-    Write-Host "Email sent to $to for Incident #$($incident.Incident)"
+    try {
+        # Send the email
+        Send-MailMessage -From $senderEmail `
+                         -To $to `
+                         -Subject $subject `
+                         -Body $body `
+                         -SmtpServer $smtpServer `
+                         -Port $port `
+                         -Credential $credential `
+                         -UseSsl `
+                         -BodyAsHtml
+        Write-Host "Email successfully sent to $to for Incident #$($incident.Incident)"
+    } catch {
+        # Handle errors
+        Write-Host "Failed to send email to $to for Incident #$($incident.Incident): $_"
+    }
 }
